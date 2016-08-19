@@ -216,14 +216,15 @@ int main(int argc, char *argv[])
 	else
 		printf("\nHost server successfully found by gethostbyname()\n");
 
-	bzero((char *)&serv_addr, sizeof(serv_addr));	//Initialize the string with zeros
+	bzero((char *)&serv_addr, sizeof(serv_addr));	//Initialize the sockaddr_in data structure with '\0'
 
-	serv_addr.sin_family = AF_INET;
-	bcopy((char *) server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+	serv_addr.sin_family = AF_INET;	
+	bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);	//Copy the server address
 	serv_addr.sin_port = htons(portno);	//Copy port number after converting from host to network byte order
 
 	printf("\nServer h_name is %s\n",server->h_name);
 
+	//Connect to the remote server
 	if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
 	{
 		error("\nERROR connecting to specified server.\n");
@@ -235,7 +236,7 @@ int main(int argc, char *argv[])
 
 		bzero(request, REQ_SZ);	//Initialize request character array with '\0'
 
-		sprintf(request, "GET %s HTTP/1.1\n", url);	//Copy the given string to request array
+		sprintf(request, "GET %s HTTP/1.1\n", url);
 		printf("\n%s", request);	
 
 		char* rootCacheDirectory = "/tmp/networkprogramming/";	//Path to the temporary cached files root directory
@@ -245,7 +246,7 @@ int main(int argc, char *argv[])
 	    //TODO 
 	    //Truncate the url to have length less than 256 for converting it to filename with proper extension
 
-	    char* cachedfilename = (char*)malloc(filenamelen+1);	//CachedFilename 
+	    char* cachedfilename = (char*)malloc(filenamelen+1);	//cachedFilename 
 	    
 	    //Replace all the forward slashes and colons with underscores to construct the filename
 	    for(int i = 0; i < filenamelen; i++)
@@ -313,10 +314,10 @@ int main(int argc, char *argv[])
 		    	printf("Error writing the response to a temporary file.\n");
 		}
 
-		char command[4110];	//Command to open the file
+		char command[4110];	//Maximum allowed filepath length on linux is 4096 characters
     	bzero(command, 4100);
-    	strcpy(command, "gnome-open ");
-    	strcat(command, cachedfilepath);	//Maximum allowed filepath length on linux is 4096 characters
+    	strcpy(command, "gnome-open ");	//Command to open the file
+    	strcat(command, cachedfilepath);	
     	if(system(command) != -1)
     	{
     		printf("\nFile opened successfully.\n");
