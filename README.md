@@ -1,2 +1,2 @@
 # NetworkProgramminginC
-Common client and server model network use case programs in C 
+Common "client and server network model" use case programs in C 
